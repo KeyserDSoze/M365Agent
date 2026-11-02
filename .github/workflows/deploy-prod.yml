@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: '24.15.0'
       - name: Preflight (fail closed)
-        run: node scripts/validate.mjs --require-init
+        run: node scripts/validate.mjs --require-init --require-provisioned
+        env:
+          M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
       - name: Install approved Work IQ Dev Tools version
         run: npm install --global @microsoft/wiqd@0.22.0
       - name: Deploy agent and apply audience policy
@@ -31,11 +33,12 @@ jobs:
           M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
           ALLOW_ORG_SHARING: ${{ vars.ALLOW_ORG_SHARING }}
           ALLOW_CATALOG_PUBLISH: ${{ vars.ALLOW_CATALOG_PUBLISH }}
+          GROUP_ASSIGNMENT_CONFIRMED: ${{ vars.GROUP_ASSIGNMENT_CONFIRMED }}
       - name: Upload deployable package
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: m365-agent-prod-package
           path: src/*/appPackage/build/appPackage.prod.zip
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 14

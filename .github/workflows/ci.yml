@@ -7,11 +7,23 @@ permissions:
   contents: read
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Init cross-platform and audience unit tests
+        run: node --test tests/boilerplate.test.mjs
       - name: Validate project structure, audience and manifests
         run: node scripts/validate.mjs
+      - name: Install Work IQ Dev Tools
+        if: runner.os == 'Linux'
+        run: npm install --global @microsoft/wiqd@0.22.0
+      - name: Validate Microsoft 365 manifest (schema/MVL)
+        if: runner.os == 'Linux'
+        run: node scripts/ci-validate.mjs

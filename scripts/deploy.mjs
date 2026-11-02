@@ -23,7 +23,7 @@ try {
   requireEnv('M365_ACCOUNT_NAME');
   requireEnv('M365_ACCOUNT_PASSWORD');
   requireEnv('M365_TENANT_ID');
-  const { config, path, pkg } = await validate({ requireInit: true });
+  const { config, path, pkg } = await validate({ requireInit: true, requireProvisioned: true });
   const { mode, emails, groupId, groupType } = config.audience;
   if (mode === 'organization' && process.env.ALLOW_ORG_SHARING !== 'true')
     throw new Error('Condivisione tenant bloccata: imposta ALLOW_ORG_SHARING=true su environment prod.');
@@ -51,6 +51,13 @@ try {
   if (config.publishToCatalog) {
     run(['agent', 'publish', ...flags]);
     await summary('Catalogo: inviata richiesta di pubblicazione; approvazione e assegnazione amministrativa possono essere necessarie.');
+  }
+  if (mode === 'group') {
+    if (process.env.GROUP_ASSIGNMENT_CONFIRMED !== 'true') {
+      await summary('AZIONE AMMINISTRATORE RICHIESTA: assegnare nel Microsoft 365 admin center il gruppo ' + groupType + ' ' + groupId + ', testare con membro e non membro, quindi impostare GROUP_ASSIGNMENT_CONFIRMED=true in prod e rilanciare il workflow.');
+      throw new Error('Deploy tecnico eseguito, visibilità al gruppo NON completata: conferma amministrativa mancante.');
+    }
+    await summary('Assegnazione al gruppo dichiarata completata dall’amministratore (flag): non verificabile automaticamente tramite WIQD.');
   }
   await summary('Deploy prod completato per ' + config.displayName + '.');
 } catch (e) {

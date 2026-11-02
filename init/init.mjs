@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Multipiattaforma: node init/init.mjs <nome> [--display-name "Nome visualizzato"]
 import { readFile, writeFile, rename, access } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,7 +40,7 @@ config.name = slug;
 config.displayName = displayName;
 config.description = definition.description;
 const env = '# Identificatore fisso per la distribuzione idempotente al tenant; non cambiare dopo il primo deploy.\n' +
-  'TEAMSFX_ENV=prod\nTEAMS_APP_NAME=' + slug + '\nTEAMS_APP_ID=' + randomUUID() + '\n';
+  'TEAMSFX_ENV=prod\nTEAMS_APP_NAME=' + slug + '\nTEAMS_APP_ID=\nM365_TITLE_ID=\nM365_AGENT_SCOPE=personal\n';
 await writeFile(join(agentDir, 'env', '.env.prod'), env);
 await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 await writeFile(definitionPath, JSON.stringify(definition, null, 2) + '\n');

@@ -9,3 +9,8 @@
 - **Dati:** accesso all'agent e accesso alle fonti SharePoint sono controlli distinti. Verificare entrambi.
 - **Identità:** `TEAMS_APP_ID` stabile; registrare gli altri ID generati senza pubblicare credenziali.
 - **Dipendenze:** versioni CLI pin, verificare release note prima di aggiornare.
+
+- **Tenant binding:** `agent.config.json → tenantId` viene confrontato con `M365_TENANT_ID` prima del provisioning.
+- **Stato cloud:** `TEAMS_APP_ID` e `M365_TITLE_ID` si versionano solo dopo il bootstrap su tenant autorizzato; non inventare o rigenerare ID.
+- **Gruppi:** `GROUP_ASSIGNMENT_CONFIRMED` attesta la verifica manuale amministrativa, non un grant automatico.
+- **Riduzione audience:** il cambio di configurazione non revoca automaticamente accessi vecchi; eseguire una revisione e le revoche necessarie.

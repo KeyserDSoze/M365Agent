@@ -8,5 +8,6 @@
     "groupId": null,
     "groupType": null
   },
-  "publishToCatalog": false
+  "publishToCatalog": false,
+  "tenantId": null
 }
