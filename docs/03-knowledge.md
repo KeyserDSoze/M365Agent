@@ -4,7 +4,7 @@ Le capacità di ricerca sono definite nel manifest dichiarativo dell'agent, **no
 - esegui prima init;
 - copia l'esempio in `src/<slug>/appPackage/declarativeAgent.json`;
 - aggiorna nome, descrizione, prompt, URL e file;
-- esegui `node scripts/validate.mjs`, poi `wiqd agent validate --path src/<slug> --env prod`;
+- esegui `npm run validate`, poi `wiqd agent validate --path src/<slug> --env prod`;
 - verifica le fonti e i permessi effettivi con un account test.
 
 ## Esempio A — documenti nel pacchetto

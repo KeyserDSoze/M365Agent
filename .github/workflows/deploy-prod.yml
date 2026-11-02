@@ -39,8 +39,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Install TypeScript tooling
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Typecheck before deploy
+        run: npm run typecheck
       - name: Preflight (fail closed)
-        run: node scripts/validate.mjs --require-init --require-provisioned
+        run: npm run validate:prod
         env:
           M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
       - name: Install approved Work IQ Dev Tools version
@@ -48,7 +52,7 @@ jobs:
       - name: Check EULA has already been accepted (no automated acceptance)
         run: wiqd eula status
       - name: Deploy agent and apply audience policy
-        run: node scripts/deploy.mjs
+        run: npm run deploy:prod
         env:
           CI_ENABLED: 'true'
           M365_ACCOUNT_NAME: ${{ secrets.M365_ACCOUNT_NAME }}
