@@ -3,6 +3,7 @@ import { access, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseAgentConfig } from '../types/agent-config.ts';
+import { configureProjectGit } from './git.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -70,6 +71,7 @@ async function main(args: string[]): Promise<void> {
   await writeFile(join(target, 'appPackage', 'declarativeAgent.json'), JSON.stringify(definition, null, 2) + '\n');
   await writeFile(configPath, JSON.stringify(config, null, 2) + '\n');
   console.log('OK: src/' + slug + ' — ' + displayName + '. Configura ora tenantId, audience e prod.');
+  await configureProjectGit(root);
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {

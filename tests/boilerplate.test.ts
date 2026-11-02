@@ -112,3 +112,87 @@ test('reject knowledge files that escape the package directory', async () => {
     assert.notEqual(invoke(dir, 'scripts/validate.ts').status, 0);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+function gitCommand(cwd: string, ...args: string[]) {
+  return spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', windowsHide: true });
+}
+
+function gitOk(cwd: string, ...args: string[]): string {
+  const result = gitCommand(cwd, ...args);
+  assert.equal(result.status, 0, 'git ' + args.join(' ') + ': ' + result.stderr);
+  return result.stdout.trim();
+}
+
+test('init detaches the original boilerplate origin and reminds on first commit', async () => {
+  const dir = await fixture();
+  try {
+    gitOk(dir, 'init');
+    gitOk(dir, 'remote', 'add', 'origin', 'https://github.com/KeyserDSoze/M365Agent.git');
+    const initialized = invoke(dir, 'init/init.ts', ['my-service']);
+    assert.equal(initialized.status, 0, initialized.stderr);
+    assert.match(initialized.stdout, /remote "origin".*rimosso/);
+    assert.equal(gitOk(dir, 'remote'), '', 'remote template must be removed');
+    const postCommit = join(dir, '.git', 'hooks', 'post-commit');
+    assert.ok((await stat(postCommit)).isFile(), 'post-commit reminder hook installed');
+    gitOk(dir, 'config', 'user.name', 'Test Contributor');
+    gitOk(dir, 'config', 'user.email', 'test@example.invalid');
+    const first = gitCommand(dir, 'commit', '--allow-empty', '-m', 'first commit');
+    assert.equal(first.status, 0, first.stderr);
+    assert.match(first.stdout + first.stderr, /git remote add origin/);
+    gitOk(dir, 'remote', 'add', 'origin', 'https://github.com/ExampleOrg/my-service.git');
+    const second = gitCommand(dir, 'commit', '--allow-empty', '-m', 'second commit');
+    assert.equal(second.status, 0, second.stderr);
+    assert.doesNotMatch(second.stdout + second.stderr, /Nessun remote configurato/);
+    assert.equal(gitOk(dir, 'remote', 'get-url', 'origin'), 'https://github.com/ExampleOrg/my-service.git');
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('init accepts SSH boilerplate URLs and preserves another project remote', async () => {
+  const dir = await fixture();
+  try {
+    gitOk(dir, 'init');
+    gitOk(dir, 'remote', 'add', 'origin', 'git@github.com:KeyserDSoze/M365Agent.git');
+    gitOk(dir, 'remote', 'add', 'backup', 'https://github.com/ExampleOrg/custom-app.git');
+    assert.equal(invoke(dir, 'init/init.ts', ['custom-app']).status, 0);
+    assert.equal(gitOk(dir, 'remote'), 'backup');
+    assert.equal(gitOk(dir, 'remote', 'get-url', 'backup'), 'https://github.com/ExampleOrg/custom-app.git');
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('init leaves an existing origin of a new repository intact', async () => {
+  const dir = await fixture();
+  try {
+    gitOk(dir, 'init');
+    const url = 'https://github.com/ExampleOrg/existing-project.git';
+    gitOk(dir, 'remote', 'add', 'origin', url);
+    assert.equal(invoke(dir, 'init/init.ts', ['existing-project']).status, 0);
+    assert.equal(gitOk(dir, 'remote', 'get-url', 'origin'), url);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('init preserves an existing post-commit hook without overwriting it', async () => {
+  const dir = await fixture();
+  try {
+    gitOk(dir, 'init');
+    gitOk(dir, 'remote', 'add', 'origin', 'https://github.com/KeyserDSoze/M365Agent');
+    const postCommit = join(dir, '.git', 'hooks', 'post-commit');
+    await writeFile(postCommit, '#!/bin/sh\necho "custom hook"\n');
+    const initialized = invoke(dir, 'init/init.ts', ['custom-hook-agent']);
+    assert.equal(initialized.status, 0, initialized.stderr);
+    assert.equal(gitOk(dir, 'remote'), '');
+    assert.equal(await readFile(postCommit, 'utf8'), '#!/bin/sh\necho "custom hook"\n');
+    assert.match(initialized.stdout, /hook post-commit già presente/);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('init never deletes a remote with a custom push URL', async () => {
+  const dir = await fixture();
+  try {
+    gitOk(dir, 'init');
+    gitOk(dir, 'remote', 'add', 'origin', 'https://github.com/KeyserDSoze/M365Agent.git');
+    gitOk(dir, 'remote', 'set-url', '--push', 'origin', 'https://github.com/ExampleOrg/push-destination.git');
+    assert.equal(invoke(dir, 'init/init.ts', ['custom-push-agent']).status, 0);
+    assert.equal(gitOk(dir, 'remote', 'get-url', 'origin'), 'https://github.com/KeyserDSoze/M365Agent.git');
+    assert.equal(gitOk(dir, 'remote', 'get-url', '--push', 'origin'), 'https://github.com/ExampleOrg/push-destination.git');
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});

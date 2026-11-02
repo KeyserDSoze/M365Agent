@@ -1,7 +1,7 @@
 # Inizializzare e sviluppare un agent
 
 1. Crea una repository da questo template o clonala. Installa **Node.js 24.12+**, poi esegui `npm ci`.
-2. Esegui `npm run init -- nome-progetto --display-name "Nome Agent"` una sola volta prima del rilascio.
+2. Esegui `npm run init -- nome-progetto --display-name "Nome Agent"` una sola volta prima del rilascio. Se il clone punta al boilerplate, `init` rimuove il relativo remote. Al primo commit verrà mostrato il comando per collegare il nuovo remote; se `origin` punta già al progetto, sarà preservato.
 3. Modifica `agent.config.json` per l'audience e il tenant GUID (`tenantId`). Default: `private`, nessun destinatario. Imposta `M365_AGENT_SCOPE=personal` in `env/.env.prod` per private senza destinatari, altrimenti `shared`.
 4. Modifica `src/<nome-progetto>/appPackage/declarativeAgent.json`: istruzioni, capability, conversation starters. Il comportamento non viene implementato con un generico file README: è il manifest a definire l'agent.
 5. Modifica `src/<nome-progetto>/appPackage/manifest.json`: `developer`, descrizioni e URL reali della tua organizzazione; sostituisci le icone esempio.
