@@ -14,3 +14,5 @@
 - **Stato cloud:** `TEAMS_APP_ID` e `M365_TITLE_ID` si versionano solo dopo il bootstrap su tenant autorizzato; non inventare o rigenerare ID.
 - **Gruppi:** `GROUP_ASSIGNMENT_CONFIRMED` attesta la verifica manuale amministrativa, non un grant automatico.
 - **Riduzione audience:** il cambio di configurazione non revoca automaticamente accessi vecchi; eseguire una revisione e le revoche necessarie.
+
+- **Licenza WIQD:** non automatizzare l'accettazione EULA: usare runner trusted con accettazione umana preventiva; evitare GitHub-hosted effimeri per WIQD non ancora accettato.

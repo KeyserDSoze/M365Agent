@@ -39,7 +39,7 @@ definition.description = 'Assistente per il progetto ' + displayName + '.';
 config.name = slug;
 config.displayName = displayName;
 config.description = definition.description;
-const env = '# Identificatore fisso per la distribuzione idempotente al tenant; non cambiare dopo il primo deploy.\n' +
+const env = '# ID vuoti prima del primo provisioning: poi committare gli ID reali generati dal tenant.\n' +
   'TEAMSFX_ENV=prod\nTEAMS_APP_NAME=' + slug + '\nTEAMS_APP_ID=\nM365_TITLE_ID=\nM365_AGENT_SCOPE=personal\n';
 await writeFile(join(agentDir, 'env', '.env.prod'), env);
 await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');

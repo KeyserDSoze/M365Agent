@@ -6,6 +6,10 @@ Per la modalità CI selezionata la pipeline si autentica come **utente Microsoft
 
 Nel repository GitHub creare l'environment `prod`, salvare i secrets e la variable tenant indicati nel README, aggiungere required reviewers. Configurare prima `agent.config.json → tenantId` con lo stesso GUID; eseguire il provisioning iniziale interattivo sul tenant, committando `TEAMS_APP_ID` e `M365_TITLE_ID` generati nel file `.env.prod` (senza segreti). Le credenziali rimangono nell'environment, non nell'agent. Prova in un tenant non-prod prima di abilitare il job su `main`. La pipeline fallisce se il progetto non ha eseguito init, mancano i secret o manca una autorizzazione esplicita per scope ampio.
 
+## Runner e EULA
+
+Il job `prod` richiede un runner Linux self-hosted con etichetta `m365-prod`, con WIQD 0.22 installato e licenza **già** accettata personalmente da un operatore per l'account che esegue il job. La CLI non consente che l'accettazione EULA venga automatizzata da GitHub Actions e il workflow non la bypassa. La CI di validazione usa la CLI Agents Toolkit e non richiede accesso Microsoft 365.
+
 ## 2. Modalità disponibili
 
 ### Solo deployer o una persona

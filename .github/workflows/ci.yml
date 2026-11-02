@@ -21,9 +21,9 @@ jobs:
         run: node --test tests/boilerplate.test.mjs
       - name: Validate project structure, audience and manifests
         run: node scripts/validate.mjs
-      - name: Install Work IQ Dev Tools
+      - name: Install Microsoft 365 Agents Toolkit CLI
         if: runner.os == 'Linux'
-        run: npm install --global @microsoft/wiqd@0.22.0
-      - name: Validate Microsoft 365 manifest (schema/MVL)
+        run: npm install --global @microsoft/m365agentstoolkit-cli@1.1.18
+      - name: Validate Microsoft 365 package (Agents Toolkit)
         if: runner.os == 'Linux'
         run: node scripts/ci-validate.mjs

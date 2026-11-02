@@ -18,3 +18,5 @@
 - [ ] Controllati risultati della pipeline, auditing e procedure di rollback.
 
 Vedi [deploy e visibilità](02-deploy-e-visibilita.md).
+
+- [ ] Runner Linux trusted self-hosted etichettato `m365-prod` pronto, con WIQD EULA già accettata manualmente sotto l'utente del runner.

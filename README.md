@@ -101,6 +101,11 @@ In **Settings → Environments → New environment**, crea **`prod`** e configur
 
 Configura **required reviewers**, eventuali deployment branch rules e privilegi minimi dell'account sul tenant. Non mettere credenziali in repository o nei file `.env.prod`. L'account deve avere già accessi, consensi e autorizzazioni Microsoft 365 per le operazioni richieste.
 
+
+### Runner richiesto per WIQD (EULA)
+
+Per il deployment non si può usare WIQD con un GitHub-hosted runner effimero come se fosse già autorizzato: **WIQD 0.22 rifiuta l'accettazione automatica dell'EULA durante CI**. Il job `deploy` usa quindi un runner Linux **self-hosted**, opportunamente protetto, con etichetta `m365-prod`. Un operatore autorizzato deve installare WIQD e accettare personalmente la licenza sull'account del runner (`wiqd eula accept wiqd` eseguito in sessione umana); verificare `wiqd eula status`. Il workflow non esegue mai l'accettazione per conto di una persona. Limitare questo runner a repository e branch affidabili e a job con approvazione `prod`. Se non c'è un runner di questo tipo, il deploy resta sospeso: i test CI restano eseguibili su GitHub-hosted Linux/Windows con Agents Toolkit CLI.
+
 **Attenzione MFA/Conditional Access:** WIQD 0.22 supporta la modalità username/password nelle pipeline trusted, ma alcune policy tenant la bloccano. La modalità refresh token è descritta dalla documentazione Microsoft come *non ancora pienamente rilasciata/validata*: il workflow non la abilita per default. Il deploy in un tenant reale richiede una prova tecnica iniziale e approvazioni; non possiamo considerarlo riuscito soltanto perché il workflow esiste. <https://microsoft.github.io/wiqd/getting-started/ci-cd-authentication/>
 
 ### Stato delle risorse tra deploy
