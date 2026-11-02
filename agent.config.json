@@ -1,0 +1,12 @@
+{
+  "name": "m365-agent",
+  "displayName": "M365 Agent",
+  "description": "Assistente Microsoft 365 per il progetto.",
+  "audience": {
+    "mode": "private",
+    "emails": [],
+    "groupId": null,
+    "groupType": null
+  },
+  "publishToCatalog": false
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json",
+  "version": "v1.8",
+  "name": "Assistente documentale",
+  "description": "Risponde usando i documenti inclusi nell'agent.",
+  "instructions": "Rispondi solo con i contenuti dei documenti forniti. Se non trovi una risposta, dichiaralo senza inventare fonti.",
+  "conversation_starters": [
+    {
+      "title": "Procedure",
+      "text": "Quali procedure descrivono i documenti?"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "EmbeddedKnowledge",
+      "files": [
+        {
+          "file": "knowledge/handbook.txt"
+        }
+      ]
+    }
+  ]
+}

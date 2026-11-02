@@ -1,0 +1,41 @@
+name: Deploy M365 agent (prod)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: m365-agent-prod
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.15.0'
+      - name: Preflight (fail closed)
+        run: node scripts/validate.mjs --require-init
+      - name: Install approved Work IQ Dev Tools version
+        run: npm install --global @microsoft/wiqd@0.22.0
+      - name: Deploy agent and apply audience policy
+        run: node scripts/deploy.mjs
+        env:
+          CI_ENABLED: 'true'
+          M365_ACCOUNT_NAME: ${{ secrets.M365_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD }}
+          M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
+          ALLOW_ORG_SHARING: ${{ vars.ALLOW_ORG_SHARING }}
+          ALLOW_CATALOG_PUBLISH: ${{ vars.ALLOW_CATALOG_PUBLISH }}
+      - name: Upload deployable package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m365-agent-prod-package
+          path: src/*/appPackage/build/appPackage.prod.zip
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json",
+  "version": "v1.8",
+  "name": "Assistente SharePoint",
+  "description": "Consulta una libreria SharePoint autorizzata.",
+  "instructions": "Usa le informazioni della libreria SharePoint configurata. Indica le fonti quando disponibili. Non inventare procedure e non suggerire di aggirare le autorizzazioni.",
+  "conversation_starters": [
+    {
+      "title": "Cerca documenti",
+      "text": "Quali documenti sono pertinenti alla mia richiesta?"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "OneDriveAndSharePoint",
+      "items_by_url": [
+        {
+          "url": "https://contoso.sharepoint.com/sites/HR/Shared%20Documents"
+        }
+      ]
+    }
+  ]
+}
