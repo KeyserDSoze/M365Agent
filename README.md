@@ -6,13 +6,14 @@ La repository contiene **un template**, non un agente già distribuito. Nessun a
 
 ## Quick start (Windows, Linux, macOS)
 
-Richiede **Node.js 24.15+** per il flusso CI Work IQ; lo script di inizializzazione funziona anche con Node 20+.
+Richiede **Node.js 24.12+ e npm**. Gli strumenti del boilerplate sono sviluppati in **TypeScript strict**: Node 24 esegue direttamente i file `.ts` con type stripping nativo, mentre `npm run typecheck` esegue il controllo statico TypeScript. I manifest dell'agent restano JSON/YAML.
 
 ```bash
 git clone https://github.com/KeyserDSoze/M365Agent.git
 cd M365Agent
-node init/init.mjs assistente-hr --display-name "Assistente HR"
-node scripts/validate.mjs
+npm ci
+npm run init -- assistente-hr --display-name "Assistente HR"
+npm run validate
 ```
 
 **PowerShell (Windows):** gli stessi comandi funzionano anche in PowerShell 7; non servono `sed`, Bash, symlink o script `.sh`/`.ps1` separati.
@@ -37,9 +38,13 @@ L'init:
 .github/workflows/
   ci.yml                 # verifica su PR e push
   deploy-prod.yml        # distribuzione su main o workflow_dispatch
-init/init.mjs             # inizializzazione cross-platform
-scripts/validate.mjs      # preflight senza credenziali
-scripts/deploy.mjs        # rilascio + condivisione condizionata
+init/init.ts              # inizializzazione cross-platform (TypeScript)
+types/agent-config.ts      # tipi e parser runtime delle configurazioni
+package.json               # npm scripts e versioni tooling
+package-lock.json          # dependency lock riproducibile (npm ci)
+tsconfig.json              # TypeScript strict + noEmit
+scripts/validate.ts       # preflight senza credenziali
+scripts/deploy.ts         # rilascio + condivisione condizionata
 agent.config.json         # identità e audience
 src/
   m365-agent/
@@ -57,6 +62,18 @@ docs/
   SECURITY.md
   examples/
 ```
+
+## Sviluppo TypeScript
+
+```bash
+npm ci
+npm run typecheck         # verifica statica dei tipi
+npm test                  # init, audience, tenant e sicurezza
+npm run validate          # configurazione attuale
+npm run validate:toolkit  # richiede Agents Toolkit CLI installato
+```
+
+Gli script `init`, `validate` e `deploy:prod` sono TypeScript. Gli agent **dichiarativi** rimangono descritti in `declarativeAgent.json`: non serve un server TypeScript per un agent che usa documenti embedded o SharePoint. Per un **custom-engine agent** con logica applicativa serve un progetto backend separato. Vedi [standard di sviluppo](docs/05-typescript.md).
 
 ## Audience: configurazione `agent.config.json`
 
@@ -81,7 +98,7 @@ La Action `deploy-prod.yml` scatta al merge su `main` oppure manualmente (`workf
 Per evitare di ricreare l'agent sui runner effimeri, la pipeline rifiuta il deploy finché gli ID cloud non sono già stati persistiti.
 
 1. Dopo l'init configura il GUID del tenant target in `agent.config.json → tenantId`.
-2. Imposta in `src/<slug>/env/.env.prod` `M365_AGENT_SCOPE=personal` solo per `private` senza email; `shared` per tutte le altre audience. Fai prima `node scripts/validate.mjs`.
+2. Imposta in `src/<slug>/env/.env.prod` `M365_AGENT_SCOPE=personal` solo per `private` senza email; `shared` per tutte le altre audience. Fai prima `npm run validate`.
 3. Da un terminale locale con sessione autorizzata al tenant scelto: `wiqd auth login --interactive` e poi `wiqd agent provision --path src/<slug> --env prod`. Verifica tenant, identità e permessi prima del comando.
 4. **Verifica e committa il file** `src/<slug>/env/.env.prod` aggiornato dalla CLI con `TEAMS_APP_ID` e `M365_TITLE_ID`; non includere `.env.*.user`, token o cache. L'app usa gli stessi ID ai deploy successivi.
 5. Prepara su GitHub l'environment `prod`, configuralo con credenziali e reviewers, assicurati che `M365_TENANT_ID` coincida con `tenantId` in config e lancia il deploy di prova.
@@ -119,5 +136,6 @@ Per il deployment non si può usare WIQD con un GitHub-hosted runner effimero co
 - [Agent con file embedded o libreria SharePoint](docs/03-knowledge.md)
 - [Controlli di sicurezza](docs/SECURITY.md)
 - [Checklist per il rilascio](docs/04-release-checklist.md)
+- [Standard TypeScript](docs/05-typescript.md)
 
 Link ufficiali: [Declarative agents](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/declarative-agent-manifest), [Agents Toolkit](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/microsoft-365-agents-toolkit-cli), [WIQD CI/CD](https://microsoft.github.io/wiqd/getting-started/ci-cd-pipelines/), [Gestione disponibilità agent](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details).

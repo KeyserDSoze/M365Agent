@@ -1,6 +1,6 @@
 # Checklist di rilascio prod
 
-- [ ] Eseguito `node init/init.mjs nome-progetto` prima di qualsiasi pubblicazione.
+- [ ] Eseguito `npm run init -- nome-progetto` prima di qualsiasi pubblicazione.
 - [ ] Approvati privacy/terms, URL developer, prompt, descrizioni e icone definitive.
 - [ ] Configurati `agent.config.json → tenantId` e audience.
 - [ ] In `env/.env.prod`: `M365_AGENT_SCOPE=personal` solo per `private` senza email; altrimenti `shared`.
