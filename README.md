@@ -21,14 +21,30 @@ npm run validate
 ```powershell
 git clone https://github.com/KeyserDSoze/M365Agent.git
 Set-Location M365Agent
-node .\init\init.mjs "assistente-hr" --display-name "Assistente HR"
-node .\scripts\validate.mjs
+npm ci
+npm run init -- "assistente-hr" --display-name "Assistente HR"
+npm run validate
 ```
 
 L'init:
 - rinomina `src/m365-agent/` in `src/assistente-hr/`;
 - aggiorna nomi e descrizione in `agent.config.json`, nel manifest Teams e nel manifest dichiarativo;
 - prepara `env/.env.prod` con ID vuoti: è il **primo provisioning** sul tenant scelto a generare i veri ID di Teams App e dell'agent. Versionarli prima di abilitare il deploy automatico.
+- **scollega automaticamente ogni remote che punta al boilerplate originale** (`KeyserDSoze/M365Agent`, HTTPS o SSH), ma **mantiene intatti i remote già associati al progetto**.
+- se non resta alcun remote, installa un promemoria `post-commit` solo nella directory Git locale (`.git/hooks/`), che dopo il primo commit ti ricorda come associare il nuovo repository. Non sovrascrive hook preesistenti o `core.hooksPath` personalizzati.
+
+### Collegare il repository Git del progetto
+
+Dopo `npm run init -- assistente-hr`, se stavi lavorando su un clone del boilerplate, `git remote -v` non mostrerà più `origin` con URL del template. **`git commit` funziona anche senza remote**: il promemoria locale appare *dopo il commit*, finché non configuri un nuovo origin.
+
+```bash
+git add .
+git commit -m "chore: initialize assistente-hr"
+git remote add origin https://github.com/TUA-ORGANIZZAZIONE/assistente-hr.git
+git push -u origin HEAD
+```
+
+Se crei una repository con **Use this template** su GitHub, `origin` punta già alla tua nuova repository e `init` lo **preserva**. Il promemoria è locale: non modifica la cronologia Git e non viene tracciato dal repository. Se usi hook personalizzati, non vengono sovrascritti.
 
 **Eseguire init prima del primo deploy**: cambia l'identità Teams App. Non rilanciare init dopo avere distribuito l'app. Personalizza prompt, metadata `developer`, privacy, termini e fonti dati.
 

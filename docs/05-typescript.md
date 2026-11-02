@@ -18,7 +18,7 @@ npm test
 npm run validate
 ```
 
-L'init è un'operazione una tantum per repository progetto. In `prod` gli script TS girano via npm con Node 24. Il workflow non effettua deploy finché non esiste un tenant associato e gli ID M365 non sono stati provisioned.
+L'init è un'operazione una tantum per repository progetto. Rimuove in sicurezza soltanto i remote che puntano all'URL originale `KeyserDSoze/M365Agent`, preservando quelli di un progetto già creato. Se il repository rimane senza remote, installa un hook Git locale `post-commit` che ricorda `git remote add origin <URL>` dopo ogni commit finché non viene associato un nuovo remote. Il hook non interrompe i commit e non sostituisce hook personalizzati. Git non richiede un remote per fare commit (ma lo richiede per il push). In `prod` gli script TS girano via npm con Node 24. Il workflow non effettua deploy finché non esiste un tenant associato e gli ID M365 non sono stati provisioned.
 
 ## Struttura del codice
 
