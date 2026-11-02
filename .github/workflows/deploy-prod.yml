@@ -1,0 +1,67 @@
+name: Deploy M365 agent (prod)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: m365-agent-prod
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      initialized: ${{ steps.check.outputs.initialized }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        name: Check whether template has been initialized
+        shell: bash
+        run: |
+          if node -e 'const c=require("./agent.config.json");process.exit(c.name === "m365-agent" ? 1 : 0)'; then
+            echo "initialized=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "initialized=false" >> "$GITHUB_OUTPUT"
+            echo "Template non inizializzato: deploy saltato." >> "$GITHUB_STEP_SUMMARY"
+          fi
+  deploy:
+    needs: plan
+    if: needs.plan.outputs.initialized == 'true'
+    # WIQD EULA richiede consenso umano preventivo: NON accettarla in CI.
+    # Configurare il runner self-hosted affidabile, etichettato m365-prod,
+    # con WIQD EULA accettata dall'operatore per il relativo account di servizio.
+    runs-on: [self-hosted, linux, m365-prod]
+    environment: prod
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Preflight (fail closed)
+        run: node scripts/validate.mjs --require-init --require-provisioned
+        env:
+          M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
+      - name: Install approved Work IQ Dev Tools version
+        run: npm install --global @microsoft/wiqd@0.22.0
+      - name: Check EULA has already been accepted (no automated acceptance)
+        run: wiqd eula status
+      - name: Deploy agent and apply audience policy
+        run: node scripts/deploy.mjs
+        env:
+          CI_ENABLED: 'true'
+          M365_ACCOUNT_NAME: ${{ secrets.M365_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD }}
+          M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
+          ALLOW_ORG_SHARING: ${{ vars.ALLOW_ORG_SHARING }}
+          ALLOW_CATALOG_PUBLISH: ${{ vars.ALLOW_CATALOG_PUBLISH }}
+          GROUP_ASSIGNMENT_CONFIRMED: ${{ vars.GROUP_ASSIGNMENT_CONFIRMED }}
+      - name: Upload deployable package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m365-agent-prod-package
+          path: src/*/appPackage/build/appPackage.prod.zip
+          if-no-files-found: ignore
+          retention-days: 14
