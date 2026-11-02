@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: '24'
       - name: Install TypeScript tooling
-        run: npm install --no-audit --no-fund --ignore-scripts
+        run: npm ci --no-audit --no-fund --ignore-scripts
       - name: Typecheck before deploy
         run: npm run typecheck
       - name: Preflight (fail closed)

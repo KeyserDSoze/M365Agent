@@ -18,13 +18,7 @@ jobs:
         with:
           node-version: '24'
       - name: Install pinned TypeScript dependencies
-        run: npm install --no-audit --no-fund --ignore-scripts
-      - name: Export exact dependency lock for initial standardization
-        if: runner.os == 'Linux'
-        run: |
-          echo 'LOCKFILE_START'
-          cat package-lock.json
-          echo 'LOCKFILE_END'
+        run: npm ci --no-audit --no-fund --ignore-scripts
       - name: Strict TypeScript typecheck
         run: npm run typecheck
       - name: TypeScript init and audience tests

@@ -11,7 +11,7 @@ Richiede **Node.js 24.12+ e npm**. Gli strumenti del boilerplate sono sviluppati
 ```bash
 git clone https://github.com/KeyserDSoze/M365Agent.git
 cd M365Agent
-npm install
+npm ci
 npm run init -- assistente-hr --display-name "Assistente HR"
 npm run validate
 ```
@@ -41,6 +41,7 @@ L'init:
 init/init.ts              # inizializzazione cross-platform (TypeScript)
 types/agent-config.ts      # tipi e parser runtime delle configurazioni
 package.json               # npm scripts e versioni tooling
+package-lock.json          # dependency lock riproducibile (npm ci)
 tsconfig.json              # TypeScript strict + noEmit
 scripts/validate.ts       # preflight senza credenziali
 scripts/deploy.ts         # rilascio + condivisione condizionata
@@ -65,7 +66,7 @@ docs/
 ## Sviluppo TypeScript
 
 ```bash
-npm install
+npm ci
 npm run typecheck         # verifica statica dei tipi
 npm test                  # init, audience, tenant e sicurezza
 npm run validate          # configurazione attuale

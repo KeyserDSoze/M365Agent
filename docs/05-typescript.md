@@ -11,7 +11,7 @@
 ## Comandi su Linux, Windows PowerShell e macOS
 
 ```bash
-npm install
+npm ci
 npm run init -- assistente-hr --display-name "Assistente HR"
 npm run typecheck
 npm test
